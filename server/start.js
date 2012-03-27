@@ -6,11 +6,12 @@
 
 const express = require("express"),
       app = express.createServer(),
-      root = __dirname + '/../';
+      root = __dirname + '/../',
+      client = root + "client/";
 
 
-app.set("views", root + "templates");
-app.use(express.static(root + "client"));
+app.set("views", client + "templates");
+app.use(express.static(client + "static"));
 app.use(express.bodyParser());
 
 app.get("/", function(req, res) {
