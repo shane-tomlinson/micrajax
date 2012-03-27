@@ -9,12 +9,12 @@ At the moment it is very very incomplete.  It only handles a tiny subset of the 
 Mozilla MPL 2.0
 
 ## Inspiration:
-Microajax http://code.google.com/p/microajax/
+Microajax[http://code.google.com/p/microajax/]
 
 ## Author
-Shane Tomlinson
-@shane_tomlinson
-set117@yahoo.com
-stomlinson@mozilla.com
-http://shanetomlinson.com
+* Shane Tomlinson
+* @shane_tomlinson
+* set117@yahoo.com
+* stomlinson@mozilla.com
+* http://shanetomlinson.com
 
