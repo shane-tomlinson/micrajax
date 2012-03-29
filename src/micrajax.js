@@ -4,77 +4,128 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 window.Micrajax = (function() {
   "use strict";
-
-  function request(type, url, contentType, callback, data) {
-    var req;
-
-    function stateChange(object) {
-      try {
-        if (req.readyState==4)
-          callback(req.responseText, req.status);
-      }catch(e) {}
-    }
-
-    function getRequest() {
-      if (window.ActiveXObject)
-        return new ActiveXObject('Microsoft.XMLHTTP');
-      else if (window.XMLHttpRequest)
-        return new XMLHttpRequest();
-      return false;
-    }
-
-    req = getRequest();
-    if(req) {
-      req.onreadystatechange = stateChange;
-
-      req.open(type, url, true);
-      req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-      if (data) {
-        req.setRequestHeader('Content-type', contentType);
+  if (!Function.prototype.bind) {
+    Function.prototype.bind = function (oThis) {
+      if (typeof this !== "function") {
+        // closest thing possible to the ECMAScript 5 internal IsCallable function
+        throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
       }
 
-      req.setRequestHeader('Accept', 'application/json;text/plain');
-      req.setRequestHeader('Connection', 'close');
+      var aArgs = Array.prototype.slice.call(arguments, 1),
+          fToBind = this,
+          fNOP = function () {},
+          fBound = function () {
+            return fToBind.apply(this instanceof fNOP
+                                   ? this
+                                   : oThis || window,
+                                 aArgs.concat(Array.prototype.slice.call(arguments)));
+          };
 
-      req.send(data || null);
-    }
+      fNOP.prototype = this.prototype;
+      fBound.prototype = new fNOP();
+
+      return fBound;
+    };
   }
 
-  function toDataString(data) {
+  function getXHRObject() {
+    var xhrObject;
+
+    if (window.ActiveXObject) {
+      xhrObject = new ActiveXObject('Microsoft.XMLHTTP');
+    }
+    else if (window.XMLHttpRequest) {
+      xhrObject = new XMLHttpRequest();
+    }
+
+    return xhrObject;
+  }
+
+  function onReadyStateChange(xhrObject, callback) {
+    try {
+      if (xhrObject.readyState==4) {
+        callback && callback(xhrObject.responseText, xhrObject.status);
+      }
+    } catch(e) {}
+  }
+
+  function toRequestString(data) {
     var components = [],
-        dataString = "";
+        requestString = "";
 
     for(var key in data) {
-      if(typeof data[key] !== "undefined") {
+      if (typeof data[key] !== "undefined") {
         components.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
       }
     }
 
-    if(components && components.length) {
-      dataString = components.join("&");
+    if (components && components.length) {
+      requestString = components.join("&");
     }
 
-    return dataString;
+    return requestString;
+  }
+
+
+  function setRequestHeaders(definedHeaders, xhrObject) {
+    var headers = {
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'application/json;text/plain',
+      'Content-type': 'application/x-www-form-urlencoded'
+    };
+
+    for(var key in definedHeaders) {
+      headers[key] = definedHeaders[key];
+    }
+
+    for(var key in headers) {
+      xhrObject.setRequestHeader(key, headers[key]);
+    }
+  }
+
+  function getURL(url, type, data) {
+    var requestString = toRequestString(data);
+
+    if (type === "GET" && requestString) {
+      url += "?" + requestString;
+    }
+
+    return url;
+  }
+
+  function getData(type, data) {
+    var requestString = toRequestString(data) || null;
+
+    if (type === "GET" && requestString) {
+      requestString = null;
+    }
+
+    return requestString;
+  }
+
+  function sendRequest(options, callback, data) {
+    var xhrObject = getXHRObject();
+
+    if (xhrObject) {
+      xhrObject.onreadystatechange = onReadyStateChange.bind(null, xhrObject, callback);
+
+      var type = (options.type || "GET").toUpperCase(),
+          url = getURL(options.url, type, options.data),
+          data = getData(type, options.data);
+
+      xhrObject.open(type, url, true);
+      setRequestHeaders(options.headers, xhrObject);
+      xhrObject.send(data);
+    }
   }
 
   var Micrajax = {
-    ajax: function(req) {
-      var type = req.type || "GET",
-          url = req.url,
-          error = req.error,
-          success = req.success,
-          contentType = req.contentType || "application/x-www-form-urlencoded",
-          data = toDataString(req.data);
+    ajax: function(options) {
+      var error = options.error,
+          success = options.success;
 
-
-      if (type === "GET" && data) {
-        url += "?" + data;
-        data = null;
-      }
-
-      request(type, url, contentType, function(responseText, status) {
-        var jqXHR = {
+      sendRequest(options, function(responseText, status) {
+        var mockXHR = {
           status: status,
           responseText: responseText
         };
@@ -88,12 +139,12 @@ window.Micrajax = (function() {
             var respData = JSON.parse(responseText);
           } catch(e) {}
 
-          success && success(respData, responseText, jqXHR);
+          success && success(respData, responseText, mockXHR);
         }
         else {
-          error && error(jqXHR, status, responseText);
+          error && error(mockXHR, status, responseText);
         }
-      }, data);
+      });
     }
   };
 

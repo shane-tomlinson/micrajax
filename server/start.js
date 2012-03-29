@@ -7,7 +7,9 @@
 const express = require("express"),
       app = express.createServer(),
       root = __dirname + '/../',
-      client = root + "client/";
+      client = root + "client/",
+      IP_ADDRESS = process.env['IP_ADDRESS'] || "0.0.0.0",
+      PORT = process.env['PORT'] || "3000";
 
 
 app.set("views", client + "templates");
@@ -55,5 +57,6 @@ app.post("/post_failure", function(req, res) {
   res.send("post failure", 500);
 });
 
-app.listen(3000);
+console.log("listening on: " + IP_ADDRESS + ":" + PORT);
+app.listen(PORT, IP_ADDRESS);
 
