@@ -6,18 +6,22 @@
   module("micrajax");
 
   asyncTest("get without data success, text response - expect 200 response, empty responseText", function() {
-    micra.ajax({
+    var mockXHR = micra.ajax({
       url: "/get_success_text",
       success: function(data, responseText, jqXHR) {
         equal(data, "", "correct data");
         equal(responseText, "", "correct text responseText");
         equal(jqXHR.status, 200, "correct status");
+        equal(jqXHR.readyState, 4, "correct readyState");
         start();
       },
       error: function() {
         ok(false, "error should not have been called");
+        start();
       }
     });
+
+    equal(mockXHR.readyState, 0, "readyState set on returned mockXHR");
   });
 
   asyncTest("get with data success, text response - expect 200 response, responseText with get data", function() {
@@ -34,6 +38,7 @@
       },
       error: function() {
         ok(false, "error should not have been called");
+        start();
       }
     });
   });
@@ -51,6 +56,7 @@
       },
       error: function() {
         ok(false, "error should not have been called");
+        start();
       }
     });
   });
@@ -63,6 +69,7 @@
       },
       success: function(data, responseText, jqXHR) {
         ok(false, "success should not have been called");
+        start();
       },
       error: function(jqXHR, status, responseText) {
         equal(status, 500, "correct status returned");
@@ -87,6 +94,7 @@
       },
       error: function() {
         ok(false, "error should not have been called");
+        start();
       }
     });
   });
@@ -105,6 +113,7 @@
       },
       error: function() {
         ok(false, "error should not have been called");
+        start();
       }
     });
   });
@@ -118,6 +127,7 @@
       },
       success: function(data, responseText, jqXHR) {
         ok(false, "success should not have been called");
+        start();
       },
       error: function(jqXHR, status, responseText) {
         equal(status, 500, "correct status returned");

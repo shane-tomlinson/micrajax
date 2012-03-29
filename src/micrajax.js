@@ -122,13 +122,13 @@ window.Micrajax = (function() {
   var Micrajax = {
     ajax: function(options) {
       var error = options.error,
-          success = options.success;
+          success = options.success,
+          mockXHR = { readyState: 0 };
 
       sendRequest(options, function(responseText, status) {
-        var mockXHR = {
-          status: status,
-          responseText: responseText
-        };
+        mockXHR.status = status;
+        mockXHR.responseText = responseText;
+        mockXHR.readyState = 4;
 
         if (status >= 200 && status < 300 || status === 304) {
           var respData = responseText;
@@ -145,6 +145,8 @@ window.Micrajax = (function() {
           error && error(mockXHR, status, responseText);
         }
       });
+
+      return mockXHR;
     }
   };
 
