@@ -27,9 +27,13 @@ window.Micrajax = (function() {
     return xhrObject;
   }
 
+  function noOp() {}
+
   function onReadyStateChange(xhrObject, callback) {
     try {
-      if (xhrObject.readyState==4) {
+      if (xhrObject.readyState == 4) {
+        xhrObject.onreadystatechange = noOp;
+
         callback && callback(xhrObject.responseText, xhrObject.status);
       }
     } catch(e) {}
@@ -56,8 +60,7 @@ window.Micrajax = (function() {
   function setRequestHeaders(definedHeaders, xhrObject) {
     var headers = {
       'X-Requested-With': 'XMLHttpRequest',
-      'Accept': 'application/json;text/plain',
-      'Content-type': 'application/x-www-form-urlencoded'
+      'Accept': 'application/json;text/plain'
     };
 
     for(var key in definedHeaders) {
@@ -79,14 +82,29 @@ window.Micrajax = (function() {
     return url;
   }
 
-  function getData(type, data) {
-    var requestString = toRequestString(data) || null;
+  function getData(contentType, type, data) {
+    var sendData;
 
-    if (type === "GET" && requestString) {
-      requestString = null;
+    if (type !== "GET" && data) {
+      switch(contentType) {
+        case "application/json":
+          if(typeof data === "string") {
+            sendData = data;
+          }
+          else {
+            sendData = JSON.stringify(data);
+          }
+          break;
+        case 'application/x-www-form-urlencoded':
+          sendData = toRequestString(data);
+          break;
+        default:
+          // do nothing
+          break;
+      }
     }
 
-    return requestString;
+    return sendData || null;
   }
 
   function sendRequest(options, callback, data) {
@@ -96,12 +114,16 @@ window.Micrajax = (function() {
       xhrObject.onreadystatechange = curry(onReadyStateChange, xhrObject, callback);
 
       var type = (options.type || "GET").toUpperCase(),
+          contentType = options.contentType || 'application/x-www-form-urlencoded',
           url = getURL(options.url, type, options.data),
-          data = getData(type, options.data);
+          data = getData(contentType, type, options.data);
 
       xhrObject.open(type, url, true);
-      setRequestHeaders(options.headers, xhrObject);
+      setRequestHeaders({ "Content-type" : contentType }, xhrObject);
       xhrObject.send(data);
+    }
+    else {
+      throw "could not get XHR object";
     }
   }
 

@@ -41,7 +41,7 @@ app.get("/get_success_json", function(req, res) {
 });
 
 app.get("/get_failure", function(req, res) {
-  res.send("get failure", 500);
+  res.send("get failure", 400);
 });
 
 app.post("/post_success_text", function(req, res) {
@@ -54,7 +54,7 @@ app.post("/post_success_json", function(req, res) {
 });
 
 app.post("/post_failure", function(req, res) {
-  res.send("post failure", 500);
+  res.send("post failure", 400);
 });
 
 console.log("listening on: " + IP_ADDRESS + ":" + PORT);
