@@ -20,6 +20,10 @@ app.get("/", function(req, res) {
   res.render("index.ejs", { layout: false });
 });
 
+app.get("/index.html", function(req, res) {
+  res.render("index.ejs", { layout: false });
+});
+
 function toString(fields) {
   var parts = [];
   for(var key in fields) {
@@ -44,6 +48,19 @@ app.get("/get_failure", function(req, res) {
   res.send("get failure", 400);
 });
 
+app.get("/get_headers", function(req, res) {
+  res.json(req.headers);
+});
+
+app.get("/request_with_latency", function(req, res) {
+  var timeout = req.params.timeout || 5000;
+
+  setTimeout(function() {
+    res.json({ success: true });
+  }, timeout);
+});
+
+
 app.post("/post_success_text", function(req, res) {
   res.contentType("text");
   res.send(toString(req.body));
@@ -55,6 +72,10 @@ app.post("/post_success_json", function(req, res) {
 
 app.post("/post_failure", function(req, res) {
   res.send("post failure", 400);
+});
+
+app.post("/post_headers", function(req, res) {
+  res.json(req.headers);
 });
 
 console.log("listening on: " + IP_ADDRESS + ":" + PORT);

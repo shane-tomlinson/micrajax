@@ -1,4 +1,3 @@
-/*jshint browsers:true, forin: true, laxbreak: true */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -17,11 +16,15 @@ window.Micrajax = (function() {
   function getXHRObject() {
     var xhrObject;
 
-    if (window.ActiveXObject) {
-      xhrObject = new ActiveXObject('Microsoft.XMLHTTP');
+    // From http://blogs.msdn.com/b/ie/archive/2011/08/31/browsing-without-plug-ins.aspx
+    // Best Practice: Use Native XHR, if available
+    if (window.XMLHttpRequest) {
+      // If IE7+, Gecko, WebKit: Use native object
+      xhrObject = new window.XMLHttpRequest();
     }
-    else if (window.XMLHttpRequest) {
-      xhrObject = new XMLHttpRequest();
+    else if (window.ActiveXObject) {
+      // ...if not, try the ActiveX control
+      xhrObject = new window.ActiveXObject('Microsoft.XMLHTTP');
     }
 
     return xhrObject;
@@ -31,10 +34,10 @@ window.Micrajax = (function() {
 
   function onReadyStateChange(xhrObject, callback) {
     try {
-      if (xhrObject.readyState == 4) {
+      if (xhrObject.readyState === 4) {
         xhrObject.onreadystatechange = noOp;
 
-        callback && callback(xhrObject.responseText, xhrObject.status);
+        callback && callback(xhrObject.responseText, xhrObject.status, xhrObject.statusText);
       }
     } catch(e) {}
   }
@@ -63,8 +66,8 @@ window.Micrajax = (function() {
       'Accept': 'application/json;text/plain'
     };
 
-    for(var key in definedHeaders) {
-      headers[key] = definedHeaders[key];
+    for(var definedHeader in definedHeaders) {
+      headers[definedHeader] = definedHeaders[definedHeader];
     }
 
     for(var key in headers) {
@@ -115,16 +118,25 @@ window.Micrajax = (function() {
 
       var type = (options.type || "GET").toUpperCase(),
           contentType = options.contentType || 'application/x-www-form-urlencoded',
-          url = getURL(options.url, type, options.data),
-          data = getData(contentType, type, options.data);
+          url = getURL(options.url, type, options.data);
+
+      data = getData(contentType, type, options.data);
 
       xhrObject.open(type, url, true);
-      setRequestHeaders({ "Content-type" : contentType }, xhrObject);
+      var headers = {
+        "Content-type" : contentType
+      };
+      for(var k in options.headers) {
+        headers[k] = options.headers[k];
+      }
+      setRequestHeaders(headers, xhrObject);
       xhrObject.send(data);
     }
     else {
       throw "could not get XHR object";
     }
+
+    return xhrObject;
   }
 
   var Micrajax = {
@@ -133,9 +145,11 @@ window.Micrajax = (function() {
           success = options.success,
           mockXHR = { readyState: 0 };
 
-      sendRequest(options, function(responseText, status) {
+      var xhrObject = sendRequest(options, function(responseText, status, statusText) {
         mockXHR.status = status;
         mockXHR.responseText = responseText;
+        if (!mockXHR.statusText)
+          mockXHR.statusText = status !== 0 ? statusText : "error";
         mockXHR.readyState = 4;
 
         if (status >= 200 && status < 300 || status === 304) {
@@ -144,7 +158,7 @@ window.Micrajax = (function() {
           try {
             // The text response could be text/plain, just ignore the JSON
             // parse error in this case.
-            var respData = JSON.parse(responseText);
+            respData = JSON.parse(responseText);
           } catch(e) {}
 
           success && success(respData, responseText, mockXHR);
@@ -153,6 +167,11 @@ window.Micrajax = (function() {
           error && error(mockXHR, status, responseText);
         }
       });
+
+      mockXHR.abort = function() {
+        mockXHR.statusText = "aborted";
+        xhrObject.abort();
+      };
 
       return mockXHR;
     }

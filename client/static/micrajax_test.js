@@ -5,6 +5,13 @@
 
   module("micrajax");
 
+  function unexpected(msg) {
+    return function() {
+      ok(false, msg);
+      start();
+    }
+  }
+
   asyncTest("get without data success, text response - expect 200 response, empty responseText", function() {
     var mockXHR = micra.ajax({
       url: "/get_success_text",
@@ -15,10 +22,7 @@
         equal(jqXHR.readyState, 4, "correct readyState");
         start();
       },
-      error: function() {
-        ok(false, "error should not have been called");
-        start();
-      }
+      error: unexpected("error")
     });
   });
 
@@ -34,10 +38,7 @@
         equal(jqXHR.status, 200, "correct status");
         start();
       },
-      error: function() {
-        ok(false, "error should not have been called");
-        start();
-      }
+      error: unexpected("error")
     });
   });
 
@@ -52,10 +53,7 @@
         equal(jqXHR.status, 200, "correct status");
         start();
       },
-      error: function() {
-        ok(false, "error should not have been called");
-        start();
-      }
+      error: unexpected("error")
     });
   });
 
@@ -65,15 +63,27 @@
       data: {
         key: "value"
       },
-      success: function(data, responseText, jqXHR) {
-        ok(false, "success should not have been called");
-        start();
-      },
+      success: unexpected("success"),
       error: function(jqXHR, status, responseText) {
         equal(status, 400, "correct status returned");
         equal(responseText, "get failure", "correct responseText returned");
         start();
       }
+    });
+  });
+
+  asyncTest("get with headers - expect headers to be received",
+      function() {
+    micra.ajax({
+      url: "/get_headers",
+      headers: {
+        'X-TEST-HEADER': 'x-test-header-value'
+      },
+      success: function(data, responseText, jqXHR) {
+        equal(data['x-test-header'], 'x-test-header-value');
+        start();
+      },
+      error: unexpected("error")
     });
   });
 
@@ -87,10 +97,7 @@
         equal(jqXHR.status, 200, "correct status");
         start();
       },
-      error: function() {
-        ok(false, "error should not have been called");
-        start();
-      }
+      error: unexpected("error")
     });
   });
 
@@ -105,10 +112,7 @@
         equal(jqXHR.status, 200, "correct status");
         start();
       },
-      error: function() {
-        ok(false, "error should not have been called");
-        start();
-      }
+      error: unexpected("error")
     });
   });
 
@@ -125,10 +129,7 @@
         equal(jqXHR.status, 200, "correct status");
         start();
       },
-      error: function() {
-        ok(false, "error should not have been called");
-        start();
-      }
+      error: unexpected("error")
     });
   });
 
@@ -146,10 +147,7 @@
         equal(jqXHR.status, 200, "correct status");
         start();
       },
-      error: function() {
-        ok(false, "error should not have been called");
-        start();
-      }
+      error: unexpected("error")
     });
   });
 
@@ -165,10 +163,7 @@
         equal(jqXHR.status, 200, "correct status");
         start();
       },
-      error: function() {
-        ok(false, "error should not have been called");
-        start();
-      }
+      error: unexpected("error")
     });
   });
 
@@ -189,7 +184,57 @@
         start();
       }
     });
+
   });
+
+  asyncTest("post with headers - expect headers to be received",
+      function() {
+    micra.ajax({
+      type: "POST",
+      url: "/post_headers",
+      headers: {
+        'X-TEST-HEADER': 'x-test-header-value'
+      },
+      success: function(data, responseText, jqXHR) {
+        equal(data['x-test-header'], 'x-test-header-value');
+        start();
+      },
+      error: unexpected("error")
+    });
+  });
+
+  asyncTest("abort a request - error callback with statusText='aborted'",
+      function() {
+    var xhr = micra.ajax({
+      url: "/request_with_latency",
+      data: {
+        timeout: 1000
+      },
+      success: unexpected("success"),
+      error: function(xhr, status, responseText) {
+        equal(xhr.statusText, "aborted")
+        equal(status, 0);
+        start();
+      }
+    });
+
+    xhr.abort();
+  });
+
+
+  asyncTest("not found - error callback with statusText='Not Found'",
+      function() {
+    var xhr = micra.ajax({
+      url: "/not_found",
+      success: unexpected("success"),
+      error: function(xhr, status, responseText) {
+        equal(xhr.statusText, "Not Found")
+        equal(status, 404);
+        start();
+      }
+    });
+  });
+
 
 }());
 
