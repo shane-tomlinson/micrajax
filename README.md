@@ -14,7 +14,9 @@ Microajax[http://code.google.com/p/microajax/]
 ## Author
 * Shane Tomlinson
 * @shane_tomlinson
+* shane@shanetomlinson.com
 * set117@yahoo.com
 * stomlinson@mozilla.com
-* http://shanetomlinson.com
+* https://shanetomlinson.com
+* https://github.com/shane-tomlinson
 

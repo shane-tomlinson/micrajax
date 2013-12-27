@@ -1,13 +1,14 @@
 {
-    "name": "micrajax"
-  , "version": "0.0.1"
-  , "private": true
-  , "dependencies": {
-      "express": "2.5.8",
-      "ejs": "0.7.1"
-   }
-  , "scripts": {
-        "start": "./server/start.js"
+  "name": "micrajax",
+  "version": "0.0.2",
+  "private": true,
+  "dependencies": {
+    "express": "2.5.8",
+    "ejs": "0.7.1",
+    "cors": "2.1.1"
+  },
+  "scripts": {
+    "start": "./server/start.js"
   },
   "engines": {
     "node": ">= 0.4.7"

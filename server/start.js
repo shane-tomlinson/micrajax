@@ -5,12 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const express = require("express"),
+      cors = require("cors"),
       app = express.createServer(),
+      cors_app = express.createServer(),
       root = __dirname + '/../',
       client = root + "client/",
       IP_ADDRESS = process.env['IP_ADDRESS'] || "0.0.0.0",
-      PORT = process.env['PORT'] || "3000";
+      PORT = process.env['PORT'] || "3000",
+      CORS_PORT = process.env['CORS_PORT'] || "3001";
 
+// Set up the main app
 
 app.set("views", client + "templates");
 app.use(express.static(client + "static"));
@@ -35,7 +39,6 @@ function toString(fields) {
 }
 
 app.get("/get_success_text", function(req, res) {
-  var str = toString(req.query);
   res.contentType("text");
   res.send(toString(req.query));
 });
@@ -80,4 +83,20 @@ app.post("/post_headers", function(req, res) {
 
 console.log("listening on: " + IP_ADDRESS + ":" + PORT);
 app.listen(PORT, IP_ADDRESS);
+
+// Set up the CORS app
+
+cors_app.use(cors());
+cors_app.get("/cors_get_success_text", function(req, res) {
+  res.contentType("text");
+  res.send("this is a CORS response");
+});
+
+cors_app.post("/cors_post_success_text", function(req, res) {
+  res.contentType("text");
+  res.send("this is a CORS POST response");
+});
+
+console.log("listening on: " + IP_ADDRESS + ":" + CORS_PORT);
+cors_app.listen(CORS_PORT, IP_ADDRESS);
 
