@@ -1,4 +1,5 @@
 (function() {
+  /*global ok, start, asyncTest, equal */
   "use strict";
 
   var micra = window.Micrajax;
@@ -9,7 +10,7 @@
     return function() {
       ok(false, msg);
       start();
-    }
+    };
   }
 
   asyncTest("get without data success, text response - expect 200 response, empty responseText", function() {
@@ -212,7 +213,7 @@
       },
       success: unexpected("success"),
       error: function(xhr, status, responseText) {
-        equal(xhr.statusText, "aborted")
+        equal(xhr.statusText, "aborted");
         equal(status, 0);
         start();
       }
@@ -228,13 +229,41 @@
       url: "/not_found",
       success: unexpected("success"),
       error: function(xhr, status, responseText) {
-        equal(xhr.statusText, "Not Found")
+        equal(xhr.statusText, "Not Found");
         equal(status, 404);
         start();
       }
     });
   });
 
+  asyncTest("CORS GET request", function() {
+    var xhr = micra.ajax({
+      url: "http://" + document.location.hostname + ":3001/cors_get_success_text",
+      success: function(data, responseText, jqXHR) {
+        equal(data, "this is a CORS response", "correct data");
+        equal(responseText, "this is a CORS response", "correct text responseText");
+        equal(jqXHR.status, 200, "correct status");
+        equal(jqXHR.readyState, 4, "correct readyState");
+        start();
+      },
+      error: unexpected("error")
+    });
+  });
+
+  asyncTest("CORS POST request", function() {
+    var xhr = micra.ajax({
+      type: "POST",
+      url: "http://" + document.location.hostname + ":3001/cors_post_success_text",
+      success: function(data, responseText, jqXHR) {
+        equal(data, "this is a CORS POST response", "correct data");
+        equal(responseText, "this is a CORS POST response", "correct text responseText");
+        equal(jqXHR.status, 200, "correct status");
+        equal(jqXHR.readyState, 4, "correct readyState");
+        start();
+      },
+      error: unexpected("error")
+    });
+  });
 
 }());
 

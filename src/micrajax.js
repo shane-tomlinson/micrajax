@@ -13,7 +13,7 @@ window.Micrajax = (function() {
     return fBound;
   }
 
-  function getXHRObject() {
+  function getXhrObject() {
     var xhrObject;
 
     // From http://blogs.msdn.com/b/ie/archive/2011/08/31/browsing-without-plug-ins.aspx
@@ -111,7 +111,7 @@ window.Micrajax = (function() {
   }
 
   function sendRequest(options, callback, data) {
-    var xhrObject = getXHRObject();
+    var xhrObject = getXhrObject();
 
     if (xhrObject) {
       xhrObject.onreadystatechange = curry(onReadyStateChange, xhrObject, callback);
