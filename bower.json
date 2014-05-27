@@ -1,0 +1,30 @@
+{
+  "name": "micrajax",
+  "version": "0.0.3",
+  "homepage": "https://github.com/shane-tomlinson/micrajax",
+  "authors": [
+    "Shane Tomlinson <shane@shanetomlinson.com>"
+  ],
+  "description": "A jQuery.ajax compatiblish micro library",
+  "main": "src/micrajax.js",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "XHR",
+    "request",
+    "microlibrary",
+    "ajax",
+    "jquery"
+  ],
+  "license": "MPL2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

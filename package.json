@@ -1,16 +1,33 @@
 {
   "name": "micrajax",
-  "version": "0.0.2",
-  "private": true,
-  "dependencies": {
+  "version": "0.0.3",
+  "description": "A jQuery.ajax compatiblish micro library",
+  "devDependencies": {
     "express": "2.5.8",
     "ejs": "0.7.1",
     "cors": "2.1.1"
   },
   "scripts": {
-    "start": "./server/start.js"
+    "start": "node ./server/start.js"
   },
   "engines": {
     "node": ">= 0.4.7"
-  }
+  },
+  "author": "Shane Tomlinson <shane@shanetomlinson.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shane-tomlinson/micrajax.git"
+  },
+  "keywords": [
+    "XHR",
+    "request",
+    "micro-library",
+    "ajax",
+    "jquery"
+  ],
+  "license": "MPL2.0",
+  "bugs": {
+    "url": "https://github.com/shane-tomlinson/micrajax/issues"
+  },
+  "homepage": "https://github.com/shane-tomlinson/micrajax"
 }
