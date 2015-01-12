@@ -13,6 +13,10 @@ const app = express();
 const IP_ADDRESS = process.env['IP_ADDRESS'] || '0.0.0.0';
 const PORT = process.env['PORT'] || '3000';
 
+const cors = require('cors');
+const CORS_PORT = process.env['CORS_PORT'] || '3001';
+var corsApp = express();
+
 app.use(bodyParser());
 
 app.use(express.static(path.join(__dirname, '..', 'tests')));
@@ -68,19 +72,20 @@ var server = app.listen(PORT, IP_ADDRESS, function () {
                   server.address().port);
 });
 
-// Set up the CORS app
-
-cors_app.use(cors());
-cors_app.get('/cors_get_success_text', function(req, res) {
+// set up the CORS app
+corsApp.use(cors());
+corsApp.get('/cors_get_success_text', function (req, res) {
   res.contentType('text');
   res.send('this is a CORS response');
 });
 
-cors_app.post('/cors_post_success_text', function(req, res) {
+corsApp.post('/cors_post_success_text', function (req, res) {
   res.contentType('text');
   res.send('this is a CORS POST response');
 });
 
-console.log('listening on: ' + IP_ADDRESS + ':' + CORS_PORT);
-cors_app.listen(CORS_PORT, IP_ADDRESS);
+var corsServer = corsApp.listen(CORS_PORT, IP_ADDRESS, function () {
+  console.log('listening on: ' + corsServer.address().address + ':' +
+                  corsServer.address().port);
+});
 

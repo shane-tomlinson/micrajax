@@ -13,14 +13,19 @@
   },
   "author": "Shane Tomlinson <shane@shanetomlinson.com>",
   "license": "MPL 2.0",
+  "homepage": "https://github.com/shane-tomlinson/micrajax",
   "repository": {
     "type": "git",
     "url": "https://github.com/shane-tomlinson/micrajax"
+  },
+  "bugs": {
+    "url": "https://github.com/shane-tomlinson/micrajax/issues"
   },
   "version": "0.0.4",
   "devDependencies": {
     "body-parser": "1.10.1",
     "bower": "1.3.12",
+    "cors": "2.5.2",
     "express": "4.10.7",
     "grunt": "0.4.5",
     "grunt-build-control": "git://github.com/robwierzbowski/grunt-build-control#274952",

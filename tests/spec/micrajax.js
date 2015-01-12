@@ -1,26 +1,22 @@
 (function () {
   'use strict';
 
+  /* global window, document, describe, it*/
   var micra = window.Micrajax;
   var assert = window.chai.assert;
-
-  var urlRoot = '';
-  function getUrl (endpoint) {
-    return urlRoot + endpoint;
-  }
 
   function unexpected(msg) {
     return function (done) {
       assert.fail(msg);
       done();
-    }
+    };
   }
 
 
   describe('micrajax', function () {
     it('get without data success, text response - expect 200 response, empty responseText', function (done) {
-      var mockXHR = micra.ajax({
-        url: getUrl('/get_success_text'),
+      micra.ajax({
+        url: '/get_success_text',
         success: function (data, responseText, jqXHR) {
           assert.equal(data, '', 'correct data');
           assert.equal(responseText, '', 'correct text responseText');
@@ -34,7 +30,7 @@
 
     it('get with data success, text response - expect 200 response, responseText with get data', function (done) {
       micra.ajax({
-        url: getUrl('/get_success_text'),
+        url: '/get_success_text',
         data: {
           key: 'value'
         },
@@ -50,7 +46,7 @@
 
     it('get with data success, JSON response - expect 200 response, data parsed from JSON', function (done) {
       micra.ajax({
-        url: getUrl('/get_success_json'),
+        url: '/get_success_json',
         data: {
           key: 'value'
         },
@@ -65,7 +61,7 @@
 
     it('get with failure, expect error to be called', function (done) {
       micra.ajax({
-        url: getUrl('/get_failure'),
+        url: '/get_failure',
         data: {
           key: 'value'
         },
@@ -81,7 +77,7 @@
     it('get with headers - expect headers to be received',
         function (done) {
       micra.ajax({
-        url: getUrl('/get_headers'),
+        url: '/get_headers',
         headers: {
           'X-TEST-HEADER': 'x-test-header-value'
         },
@@ -96,7 +92,7 @@
     it('post with undefined data success, text response - expect 200 response, responseText with no data', function (done) {
       micra.ajax({
         type: 'POST',
-        url: getUrl('/post_success_text'),
+        url: '/post_success_text',
         success: function (data, responseText, jqXHR) {
           assert.equal(data, '', 'correct data');
           assert.equal(responseText, '', 'correct responseText');
@@ -110,7 +106,7 @@
     it('post with null data success, text response - expect 200 response, responseText with no data', function (done) {
       micra.ajax({
         type: 'POST',
-        url: getUrl('/post_success_text'),
+        url: '/post_success_text',
         data: null,
         success: function (data, responseText, jqXHR) {
           assert.equal(data, '', 'correct data');
@@ -125,7 +121,7 @@
     it('post with object data success, text response - expect 200 response, responseText with post data', function (done) {
       micra.ajax({
         type: 'POST',
-        url: getUrl('/post_success_text'),
+        url: '/post_success_text',
         data: {
           key: 'value'
         },
@@ -143,7 +139,7 @@
       var jsonValue = JSON.stringify({ key: 'value' });
       micra.ajax({
         type: 'POST',
-        url: getUrl('/post_success_text'),
+        url: '/post_success_text',
         data: jsonValue,
         contentType: 'application/json',
         success: function (data, responseText, jqXHR) {
@@ -160,7 +156,7 @@
     it('post with data success, JSON response - expect 200 response, data parsed from JSON', function (done) {
       micra.ajax({
         type: 'POST',
-        url: getUrl('/post_success_json'),
+        url: '/post_success_json',
         data: {
           key: 'value'
         },
@@ -176,12 +172,12 @@
     it('post with failure, expect error to be called', function (done) {
       micra.ajax({
         type: 'POST',
-        url: getUrl('/post_failure'),
+        url: '/post_failure',
         data: {
           key: 'value'
         },
         success: function (data, responseText, jqXHR) {
-          ok(false, 'success should not have been called');
+          assert.ok(false, 'success should not have been called');
           done();
         },
         error: function (jqXHR, status, responseText) {
@@ -197,7 +193,7 @@
         function (done) {
       micra.ajax({
         type: 'POST',
-        url: getUrl('/post_headers'),
+        url: '/post_headers',
         headers: {
           'X-TEST-HEADER': 'x-test-header-value'
         },
@@ -212,13 +208,13 @@
     it('abort a request - error callback with statusText=`aborted`',
         function (done) {
       var xhr = micra.ajax({
-        url: getUrl('/request_with_latency'),
+        url: '/request_with_latency',
         data: {
           timeout: 1000
         },
         success: unexpected('success', done),
         error: function (xhr, status, responseText) {
-          assert.equal(xhr.statusText, 'aborted')
+          assert.equal(xhr.statusText, 'aborted');
           assert.equal(status, 0);
           done();
         }
@@ -230,16 +226,46 @@
 
     it('not found - error callback with statusText=`Not Found`',
         function (done) {
-      var xhr = micra.ajax({
-        url: getUrl('/not_found'),
+      micra.ajax({
+        url: '/not_found',
         success: unexpected('success', done),
         error: function (xhr, status, responseText) {
-          assert.equal(xhr.statusText, 'Not Found')
+          assert.equal(xhr.statusText, 'Not Found');
           assert.equal(status, 404);
           done();
         }
       });
     });
+
+    it('CORS GET request', function (done) {
+      micra.ajax({
+        url: 'http://' + document.location.hostname + ':3001/cors_get_success_text',
+        success: function (data, responseText, jqXHR) {
+          assert.equal(data, 'this is a CORS response', 'correct data');
+          assert.equal(responseText, 'this is a CORS response', 'correct text responseText');
+          assert.equal(jqXHR.status, 200, 'correct status');
+          assert.equal(jqXHR.readyState, 4, 'correct readyState');
+          done();
+        },
+        error: unexpected('error', done)
+      });
+    });
+
+    it('CORS POST request', function (done) {
+      micra.ajax({
+        type: 'POST',
+        url: 'http://' + document.location.hostname + ':3001/cors_post_success_text',
+        success: function (data, responseText, jqXHR) {
+          assert.equal(data, 'this is a CORS POST response', 'correct data');
+          assert.equal(responseText, 'this is a CORS POST response', 'correct text responseText');
+          assert.equal(jqXHR.status, 200, 'correct status');
+          assert.equal(jqXHR.readyState, 4, 'correct readyState');
+          done();
+        },
+        error: unexpected('error', done)
+      });
+    });
+
   });
 }());
 
