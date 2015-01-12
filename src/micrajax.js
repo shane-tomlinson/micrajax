@@ -2,36 +2,39 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* jshint ignore:start */
-(function(define){
-/* jshint ignore:end */
-define(function (require, exports, module, undefined) {
+// jscs: disable
+// jshint ignore:start
+;(function (define){define(function (require,exports,module){
+// jshint ignore:end
+// jscs: enable
+
   'use strict';
 
+  var DEFAULT_CONTENT_TYPE = 'application/x-www-form-urlencoded';
+
   function curry(fToBind) {
-    var aArgs = [].slice.call(arguments, 1),
-        fBound = function () {
-          return fToBind.apply(null, aArgs.concat([].slice.call(arguments)));
-        };
+    var aArgs = [].slice.call(arguments, 1);
+    var fBound = function () {
+      return fToBind.apply(null, aArgs.concat([].slice.call(arguments)));
+    };
 
     return fBound;
   }
 
-  function getXhrObject() {
+  function getXHRObject(options) {
     var xhrObject;
 
     // From http://blogs.msdn.com/b/ie/archive/2011/08/31/browsing-without-plug-ins.aspx
     // Best Practice: Use Native XHR, if available
-    if (window.XMLHttpRequest) {
+    if (options.xhr) {
+      return options.xhr;
+    } else if (window.XMLHttpRequest) {
       // If IE7+, Gecko, WebKit: Use native object
-      xhrObject = new window.XMLHttpRequest();
-    }
-    else if (window.ActiveXObject) {
+      return new window.XMLHttpRequest();
+    } else if (window.ActiveXObject) {
       // ...if not, try the ActiveX control
-      xhrObject = new window.ActiveXObject('Microsoft.XMLHTTP');
+      return new window.ActiveXObject('Microsoft.XMLHTTP');
     }
-
-    return xhrObject;
   }
 
   function noOp() {}
@@ -41,26 +44,26 @@ define(function (require, exports, module, undefined) {
       if (xhrObject.readyState === 4) {
         xhrObject.onreadystatechange = noOp;
 
-        callback && callback(xhrObject.responseText, xhrObject.status, xhrObject.statusText);
+        callback(xhrObject.responseText, xhrObject.status, xhrObject.statusText);
       }
     } catch(e) {}
   }
 
-  function toRequestString(data) {
-    var components = [],
-        requestString = "";
+  function toQueryParamsString(data) {
+    var queryParams = [];
 
-    for(var key in data) {
-      if (typeof data[key] !== "undefined") {
-        components.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
+    for (var key in data) {
+      var value = data[key];
+
+      if (typeof value !== 'undefined') {
+        var queryParam = encodeURIComponent(key) +
+                         '=' +
+                         encodeURIComponent(value);
+        queryParams.push(queryParam);
       }
     }
 
-    if (components && components.length) {
-      requestString = components.join("&");
-    }
-
-    return requestString;
+    return queryParams.join('&');
   }
 
 
@@ -70,20 +73,20 @@ define(function (require, exports, module, undefined) {
       'Accept': 'application/json;text/plain'
     };
 
-    for(var definedHeader in definedHeaders) {
+    for (var definedHeader in definedHeaders) {
       headers[definedHeader] = definedHeaders[definedHeader];
     }
 
-    for(var key in headers) {
+    for (var key in headers) {
       xhrObject.setRequestHeader(key, headers[key]);
     }
   }
 
   function getURL(url, type, data) {
-    var requestString = toRequestString(data);
+    var requestString = toQueryParamsString(data);
 
-    if (type === "GET" && requestString) {
-      url += "?" + requestString;
+    if (type === 'GET' && requestString) {
+      url += '?' + requestString;
     }
 
     return url;
@@ -92,18 +95,17 @@ define(function (require, exports, module, undefined) {
   function getData(contentType, type, data) {
     var sendData;
 
-    if (type !== "GET" && data) {
+    if (type !== 'GET' && data) {
       switch(contentType) {
-        case "application/json":
-          if(typeof data === "string") {
+        case 'application/json':
+          if (typeof data === 'string') {
             sendData = data;
-          }
-          else {
+          } else {
             sendData = JSON.stringify(data);
           }
           break;
         case 'application/x-www-form-urlencoded':
-          sendData = toRequestString(data);
+          sendData = toQueryParamsString(data);
           break;
         default:
           // do nothing
@@ -114,46 +116,58 @@ define(function (require, exports, module, undefined) {
     return sendData || null;
   }
 
+  function getHeaders(contentType, specifiedHeaders) {
+    var headers = {
+      'Content-type' : contentType
+    };
+
+    for (var k in specifiedHeaders) {
+      headers[k] = specifiedHeaders[k];
+    }
+
+    return headers;
+  }
+
   function sendRequest(options, callback, data) {
-    var xhrObject = getXhrObject();
+    options = options || {};
 
-    if (xhrObject) {
-      xhrObject.onreadystatechange = curry(onReadyStateChange, xhrObject, callback);
+    var xhrObject = getXHRObject(options);
 
-      var type = (options.type || "GET").toUpperCase(),
-          contentType = options.contentType || 'application/x-www-form-urlencoded',
-          url = getURL(options.url, type, options.data);
-
-      data = getData(contentType, type, options.data);
-
-      xhrObject.open(type, url, true);
-      var headers = {
-        "Content-type" : contentType
-      };
-      for(var k in options.headers) {
-        headers[k] = options.headers[k];
-      }
-      setRequestHeaders(headers, xhrObject);
-      xhrObject.send(data);
+    if (! xhrObject) {
+      throw new Error('could not get XHR object');
     }
-    else {
-      throw "could not get XHR object";
-    }
+
+    xhrObject.onreadystatechange = curry(onReadyStateChange, xhrObject, callback|| noOp);
+
+    var type = (options.type || 'GET').toUpperCase();
+    var contentType = options.contentType || DEFAULT_CONTENT_TYPE;
+    var url = getURL(options.url, type, options.data);
+
+    data = getData(contentType, type, options.data);
+
+    xhrObject.open(type, url, true);
+
+    var headers = getHeaders(contentType, options.headers);
+    setRequestHeaders(headers, xhrObject);
+
+    xhrObject.send(data);
 
     return xhrObject;
   }
 
   var Micrajax = {
-    ajax: function(options) {
-      var error = options.error,
-          success = options.success,
-          mockXHR = { readyState: 0 };
+    ajax: function (options) {
+      options = options || {};
+      var error = options.error || noOp;
+      var success = options.success || noOp;
+      var mockXHR = { readyState: 0 };
 
-      var xhrObject = sendRequest(options, function(responseText, status, statusText) {
+      var xhrObject = sendRequest(options, function (responseText, status, statusText) {
         mockXHR.status = status;
         mockXHR.responseText = responseText;
-        if (!mockXHR.statusText)
-          mockXHR.statusText = status !== 0 ? statusText : "error";
+        if (! mockXHR.statusText) {
+          mockXHR.statusText = status !== 0 ? statusText : 'error';
+        }
         mockXHR.readyState = 4;
 
         if (status >= 200 && status < 300 || status === 304) {
@@ -165,15 +179,14 @@ define(function (require, exports, module, undefined) {
             respData = JSON.parse(responseText);
           } catch(e) {}
 
-          success && success(respData, responseText, mockXHR);
-        }
-        else {
-          error && error(mockXHR, status, responseText);
+          success(respData, responseText, mockXHR);
+        } else {
+          error(mockXHR, status, responseText);
         }
       });
 
-      mockXHR.abort = function() {
-        mockXHR.statusText = "aborted";
+      mockXHR.abort = function () {
+        mockXHR.statusText = 'aborted';
         xhrObject.abort();
       };
 
@@ -182,10 +195,12 @@ define(function (require, exports, module, undefined) {
   };
 
   module.exports = Micrajax;
-});
-/* jshint ignore:start */
-})((function(n,w){return typeof define=='function'&&define.amd
-?define:typeof module=='object'?function(c){c(require,exports,module);}
-:function(c){var m={exports:{}},r=function(n){return w[n];};w[n]=c(r,m.exports,m)||m.exports;};
-})('Micrajax',this));
-/* jshint ignore:end */
+
+// jshint ignore:end
+// jscs: enable
+});})(typeof define=='function'&&define.amd?define
+:(function (n,w){'use strict';return typeof module=='object'?function (c){
+c(require,exports,module);}:function (c){var m={exports:{}};c(function (n){
+return w[n];},m.exports,m);w[n]=m.exports;};})('Micrajax',this));
+// jshint ignore:end
+// jscs: enable
