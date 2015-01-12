@@ -22,8 +22,6 @@
   }
 
   function getXHRObject(options) {
-    var xhrObject;
-
     // From http://blogs.msdn.com/b/ie/archive/2011/08/31/browsing-without-plug-ins.aspx
     // Best Practice: Use Native XHR, if available
     if (options.xhr) {
@@ -96,7 +94,7 @@
     var sendData;
 
     if (type !== 'GET' && data) {
-      switch(contentType) {
+      switch (contentType) {
         case 'application/json':
           if (typeof data === 'string') {
             sendData = data;
@@ -118,7 +116,7 @@
 
   function getHeaders(contentType, specifiedHeaders) {
     var headers = {
-      'Content-type' : contentType
+      'Content-type': contentType
     };
 
     for (var k in specifiedHeaders) {
@@ -196,8 +194,8 @@
 
   module.exports = Micrajax;
 
-// jshint ignore:end
-// jscs: enable
+// jscs: disable
+// jshint ignore:start
 });})(typeof define=='function'&&define.amd?define
 :(function (n,w){'use strict';return typeof module=='object'?function (c){
 c(require,exports,module);}:function (c){var m={exports:{}};c(function (n){

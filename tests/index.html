@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="bower_components/mocha/mocha.css">
+
+	<script src="bower_components/mocha/mocha.js"></script>
+	<script src="bower_components/chai/chai.js"></script>
+	<script src="bower_components/sinon/index.js"></script>
+
+  <script>
+    mocha.setup('bdd');
+  </script>
+
+
+
+  <!-- Add a link to the src and tests here -->
+	<script src="src/micrajax.js"></script>
+	<script src="spec/micrajax.js"></script>
+
+  <title>micrajax Unit Tests</title>
+
+</head>
+<body>
+
+  <div id="mocha"></div>
+
+  <script>
+    if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+      mocha.run();
+    }
+  </script>
+
+</body>
+</html>
