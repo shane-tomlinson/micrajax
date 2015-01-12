@@ -21,7 +21,7 @@ install:
   - npm run-script setup-bower
 
 before_script:
-  - npm start;
+  - npm start &
 
 script:
   - npm test
