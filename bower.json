@@ -1,11 +1,9 @@
 {
   "name": "micrajax",
-  "version": "0.0.3",
+  "version": "0.0.4",
+  "description": "A jQuery inspired ajax micro library",
+  "author": "Shane Tomlinson <shane@shanetomlinson.com>",
   "homepage": "https://github.com/shane-tomlinson/micrajax",
-  "authors": [
-    "Shane Tomlinson <shane@shanetomlinson.com>"
-  ],
-  "description": "A jQuery.ajax compatiblish micro library",
   "main": "src/micrajax.js",
   "moduleType": [
     "amd",
@@ -19,7 +17,7 @@
     "ajax",
     "jquery"
   ],
-  "license": "MPL2.0",
+  "license": "MPL 2.0",
   "ignore": [
     "**/.*",
     "node_modules",

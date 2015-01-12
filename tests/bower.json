@@ -1,0 +1,26 @@
+{
+  "name": "micrajax-tests",
+  "version": "0.0.0",
+  "authors": [
+    "Shane Tomlinson <stomlinson@mozilla.com>"
+  ],
+  "description": "The tests for micrajax library",
+  "moduleType": [
+    "amd",
+    "es6"
+  ],
+  "license": "MPL 2.0",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "chai": "1.10.0",
+    "mocha": "2.1.0",
+    "sinon": "http://sinonjs.org/releases/sinon-1.12.2.js"
+  }
+}

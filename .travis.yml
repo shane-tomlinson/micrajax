@@ -1,0 +1,28 @@
+language: node_js
+cache: node_modules
+
+sudo: false
+
+notifications:
+  email:
+    recipients:
+      - shane@shanetomlinson.com
+    on_success: change
+    on_failure: always
+
+node_js:
+  - 0.10.25
+
+before_install:
+  - phantomjs --version
+
+install:
+  - travis_retry npm install --silent
+  - npm run-script setup-bower
+
+before_script:
+  - npm start &
+
+script:
+  - npm test
+
