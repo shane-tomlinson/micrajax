@@ -1,6 +1,6 @@
 {
   "name": "micrajax",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "A jQuery inspired ajax micro library",
   "author": "Shane Tomlinson <shane@shanetomlinson.com>",
   "homepage": "https://github.com/shane-tomlinson/micrajax",
