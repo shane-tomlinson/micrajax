@@ -1,50 +1,10 @@
-<? docfiles.forEach(function(doc) { ?>
 
-<!-- Start <?= doc.filename ?> -->
 
-<? doc.javadoc.forEach(function(comment) { ?>
-<? if (!comment.ignore) { ?>
-<? if (comment.name) { ?>
-<? if (comment.isMethod || comment.isFunction) { ?>
-## <?= comment.name ?>(<?= comment.paramStr ?>)
-<? } else { ?>
-## <?= comment.name ?>
-<? } ?>
-<? } ?>
+<!-- Start src/micrajax.js -->
 
-<?= comment.description ?>
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<? if (comment.deprecated) { ?>
-**Deprecated**
-<? } ?>
+<!-- End src/micrajax.js -->
 
-<? if (comment.author) { ?>
-Author: <?- comment.author ?>
-<? } ?>
-
-<? if (comment.version) { ?>
-Version: <?= comment.version ?>
-<? } ?>
-
-<? if (comment.see) { ?>
-See: <?= comment.see ?>
-<? } ?>
-
-<? if (comment.paramTags.length > 0) { ?>
-### Params:
-<? comment.paramTags.forEach(function(paramTag) { ?>
-* **<?= paramTag.joinedTypes ?>** *<?= paramTag.name ?>* <?= paramTag.description ?><? }) ?>
-<? } ?>
-
-<? if (comment.returnTags.length > 0) { ?>
-### Return:
-<? comment.returnTags.forEach(function(returnTag) { ?>
-* **<?= returnTag.joinedTypes ?>** <?= returnTag.description ?>
-<? }) ?>
-<? } ?>
-<? } ?>
-<? }) ?>
-
-<!-- End <?= doc.filename ?> -->
-
-<? }) ?>
