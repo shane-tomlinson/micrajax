@@ -2,11 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// jscs: disable
-// jshint ignore:start
-;(function (define){define(function (require,exports,module){
-// jshint ignore:end
-// jscs: enable
+;(function (root, factory) {
+  // more info:
+  // https://raw.githubusercontent.com/umdjs/umd/master/returnExports.js
+  'use strict';
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define([], factory);
+  } else if (typeof exports === 'object') {
+    // Node. Does not work with strict CommonJS, but
+    // only CommonJS-like environments that support module.exports,
+    // like Node.
+    module.exports = factory();
+  } else {
+    // Browser globals (root is window)
+    root.Micrajax = factory();
+  }
+}(this, function () {
 
   'use strict';
 
@@ -192,13 +204,5 @@
     }
   };
 
-  module.exports = Micrajax;
-
-// jscs: disable
-// jshint ignore:start
-});})(typeof define=='function'&&define.amd?define
-:(function (n,w){'use strict';return typeof module=='object'?function (c){
-c(require,exports,module);}:function (c){var m={exports:{}};c(function (n){
-return w[n];},m.exports,m);w[n]=m.exports;};})('Micrajax',this));
-// jshint ignore:end
-// jscs: enable
+  return Micrajax;
+}));
